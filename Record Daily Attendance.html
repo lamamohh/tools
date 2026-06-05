@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance System</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: linear-gradient(135deg, #dbeafe, #f8fafc);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            width: 350px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>Check In</h2>
+
+    <input type="text" id="name" placeholder="Employee Name">
+
+    <button onclick="checkIn()">Check In</button>
+</div>
+
+<h3>Admin Attendance Table</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Check In</th>
+            <th>Check Out</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+    let attendance = JSON.parse(localStorage.getItem("attendance")) || [];
+
+    function checkIn() {
+        let name = document.getElementById("name").value;
+
+        if (name === "") {
+            alert("Enter name");
+            return;
+        }
+
+        let now = new Date();
+
+        let record = {
+            name: name,
+            date: now.toLocaleDateString(),
+            checkIn: now.toLocaleTimeString(),
+            checkOut: ""
+        };
+
+        attendance.push(record);
+        localStorage.setItem("attendance", JSON.stringify(attendance));
+
+        loadTable();
+        document.getElementById("name").value = "";
+    }
+
+    function loadTable() {
+        let table = document.getElementById("tableBody");
+        table.innerHTML = "";
+
+        attendance.forEach((item, index) => {
+            let row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.date}</td>
+                    <td>${item.checkIn}</td>
+                    <td>
+                        ${item.checkOut || `<button onclick="checkOut(${index})">Check Out</button>`}
+                    </td>
+                </tr>
+            `;
+            table.innerHTML += row;
+        });
+    }
+
+    function checkOut(index) {
+        let now = new Date();
+        attendance[index].checkOut = now.toLocaleTimeString();
+
+        localStorage.setItem("attendance", JSON.stringify(attendance));
+        loadTable();
+    }
+
+    loadTable();
+</script>
+
+</body>
+</html>
